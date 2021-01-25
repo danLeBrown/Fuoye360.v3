@@ -1,0 +1,27 @@
+.about-avi {
+    margin: 0 auto;
+    padding: .5rem;
+}
+
+.about-avi img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    display: block;
+    object-fit: cover;
+    box-shadow: 0 0 4px rgba(0, 0, 0, .9);
+}
+
+#about-page textarea {
+    width: inherit;
+    padding: .5rem;
+    box-sizing: border-box;
+}
+
+@media screen and (min-width: 768px) {
+    .about-inspiration {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        align-items: center;
+    }
+}
