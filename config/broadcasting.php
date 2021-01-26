@@ -37,8 +37,8 @@ return [
             'app_id' => env('PUSHER_APP_ID'),
             'options' => [
                 'cluster' => env('PUSHER_APP_CLUSTER'),
-                'encrypted' => false,
-                'host' => 'fuoye360.test',
+                'encrypted' => true,
+                'host' => 'fuoye360.com',
                 'port' => 6001,
                 'scheme' => 'http'
             ],
