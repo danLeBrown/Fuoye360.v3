@@ -15,28 +15,19 @@
                             <h3 v-else-if="updateNav == 'notifications'"><i class="fas fa-bell"></i> Notifications</h3>
                             <h3 v-else-if="updateNav == 'ad'"><i class="fas fa-ad"></i> Adverts</h3>
                         </div>
-                        <div v-if="guest == true" class="profile-status">
-                            <router-link :to="{name: 'login'}" class="login">Login <i class="fas fa-lock"></i></router-link>
-                        </div>
-                        <div v-else class="profile-status">
+                        <div class="profile-status">
                             <div v-if="['shop', 'broadcast'].includes(updateNav)">
                                 <button style="background: none; border:none" @click="toggleProfileState">
                                     <img loading="lazy" class="profile-display" :src="asset('storage/profile_images/'+user.image)"/>
                                 </button>
                             </div>
-                            <div v-else class="profile-status">
-                                <a href="#" @click.prevent="logout" class="logout">EXIT <i class="fas fa-sign-out-alt"></i></a></div>
-                        </div>                    
-                    </div>
-                    <div v-else class="dynamic-div">
-                        <div class="search-div">
-                            <form>
-                                <div class="input-div">
-                                    <input type="text" class="search-input" ><button class="search-btn"><i class="fas fa-search"></i> Search</button>
-                                </div>
-                            </form>
+                            <router-link v-else-if="guest == true"  :to="{name: 'login'}" class="login">Login <i class="fas fa-lock"></i></router-link>
+                            <a href="#" v-else @click.prevent="logout" class="logout">EXIT <i class="fas fa-sign-out-alt"></i></a>
                         </div>
                     </div>
+                    <form v-else class="dynamic-div search-form">
+                        <input type="text" class="search-input" ><button class="search-btn"><i class="fas fa-search"></i></button>
+                    </form>
                 </div>
             </div>
         </header>
@@ -89,7 +80,10 @@
                 </div>
             </div>
             <div class="fast-link-container">
-                <router-link v-if="this.guest == false" :to="{name: 'notifications'}" class="fast-router router-notification-div"><i class="fas fa-bell"></i></router-link>
+                <span style="position:relative;">
+                    <router-link v-if="this.guest == false" :to="{name: 'notifications'}" class="fast-router router-notification-div"><i class="fas fa-bell"></i></router-link>
+                    <span class="notification-count" :style="notification_count <= 0? 'transform:scale(0)':''">{{notification_count}}</span>
+                </span>
                 <button class="fast-router router-broadcast-div" v-if="$route.name == 'broadcast' && this.guest == false" @click="newBroadcast"><i class="fas fa-bullhorn"></i></button>
                 <router-link v-if="$route.name == 'shop'" :to="{name: 'shop', params : {page: 'cart'}}" class="fast-router router-shop-div"><i class="fas fa-shopping-cart"></i></router-link>
             </div>
@@ -100,7 +94,7 @@
 <script>
 export default {
     name: 'navbar',
-    props: ["updateNav", "guest", "user", "profileState"],
+    props: ["updateNav", "guest", "user", "profileState", "notification_count"],
     data(){
         return{
             navStatus:[],
@@ -108,7 +102,15 @@ export default {
             // search:{},
             // guest: true
             st: 0,
-            lastScrollTop: 0
+            lastScrollTop: 0,
+        }
+    },
+    watch: {
+        notification_count : function(){
+            $(".notification-count").addClass('animate-notification')
+            setTimeout(() => {
+                $(".notification-count").removeClass('animate-notification')
+            }, 1500);
         }
     },
     mounted() {
@@ -241,19 +243,50 @@ export default {
 }
 </script>
 <style scoped>
+.search-form{
+    display: block;
+}
 .search-input{
     outline: none;
-    padding: 0.5rem;
     font: inherit;
     border-radius: 0.5rem 0px 0px 0.5rem;
     border: none;
 }
 .search-btn{
-    padding: .5rem;
     font: inherit;
     border: none;
     border-radius: 0 .5rem .5rem 0;
     background: var(--brand-color);
     color: var(--white-color);
+}
+.notification-count{
+    position:absolute;
+    top:-10px;
+    right:0;
+    color:var(--white-color);
+    background:var(--brand-color);
+    font-size:.5rem;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 50%;
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, .25);
+}
+.animate-notification{
+    animation: notification 1200ms 1 alternate;
+}
+@keyframes notification {
+    0%{
+        transform: scale(0);
+    }
+    50%{
+        transform: scale(1);
+    }
+    100%{
+        transform: scale(0);
+    }
 }
 </style>

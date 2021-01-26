@@ -5,9 +5,9 @@
         </div>
         <div v-else>
             <div class="wrapper">
-                <div v-if="$route.params.page == undefined" :style="$route.params.page == undefined? 'display:none;': ''">
-
-                </div>
+                <a href="#" v-if="$route.params.page == undefined" class="new-tweets-available" @click="pushBroadcast"><i class="fas fa-bell"></i> NEW BROADCASTS</a>
+                <!-- <div  :style="$route.params.page == undefined? 'display:none;': ''">
+                </div> -->
                 <div v-else-if="$route.params.page == 'trending'" >
                     <div class='sb-text'>
                         <h3 class=''><i class='fas fa-fire'></i> Trending</h3>
@@ -70,6 +70,8 @@ export default {
             createdThreadStatus: '',
             api: '',
             page: 1,
+            push_broadcasts: [],
+            broadcast_pushed: false
         }
     },
     props: ["user", "createBroadcast"],
@@ -85,16 +87,73 @@ export default {
             this.broadcasts = [];
             this.createdThreadStatus= '';
             this.setUpBroadcastPage();
+        },
+        push_broadcasts : function () {
+            setTimeout(() => {
+                if (this.broadcast_pushed === false) {
+                    this.push_broadcasts.forEach(broadcast =>{
+                        this.broadcasts.unshift(broadcast);
+                        $(".new-tweets-available").animate({
+                            top: -100
+                        });
+                        this.broadcast_pushed = true;
+                        this.push_broadcasts = [];
+                    });
+                }
+            }, 3000);
+        }
+    },
+    mounted() {
+        if(this.$route.params.page == undefined){
+            Echo.channel('fuoye360_channel')
+            .listen('NewBroadcast', (e)=>{
+                e.PUSH_NOTIFICATION_RECEIVERS.forEach(id =>{
+                    console.log(e);
+                    if (id == this.user.id) {
+                        $(".new-tweets-available").fadeIn();
+                        e.PUSH_BROADCASTS.forEach(broadcast =>{
+                            if(broadcast.media != null){
+                                broadcast.media = JSON.parse(broadcast.media);
+                            }
+                            if(broadcast.is_comment == true){
+                                if(broadcast.original_post.media != null){
+                                    broadcast.original_post.media = JSON.parse(broadcast.original_post.media);
+                                }
+                            }
+                            if (this.push_broadcasts.length <= 0) {
+                                this.push_broadcasts.push(broadcast);
+                            }else{
+                                this.push_broadcasts.unshift(broadcast);
+                            }
+                        });
+                        $(".new-tweets-available").animate({
+                            top: 100
+                        });
+                        this.broadcast_pushed = false;
+                    }
+                });
+            });
         }
     },
     created() {
         this.setUpBroadcastPage();
     },
     methods: {
+        async pushBroadcast(){
+            if (this.broadcast_pushed != true) {
+                this.push_broadcasts.forEach(broadcast =>{
+                    this.broadcasts.unshift(broadcast);
+                });
+                $(".new-tweets-available").animate({
+                    top: -100
+                });
+                this.broadcast_pushed = await true;
+                this.push_broadcasts = [];
+            }
+        },
         async setUpBroadcastPage(){
             const current_page = this.$route.params.page;
             if(current_page == undefined){
-                // this.getTrending();
                 this.api = '/api/broadcast';
             }else if (current_page == "bookmark") {
                 this.api = '/api/broadcast/bookmarks';
@@ -152,7 +211,6 @@ export default {
                     }
                 });
             }
-            // this.showOption = false;
             this.closeOption();
         },
         async updateComment(){
@@ -282,3 +340,23 @@ export default {
     },
 }
 </script>
+<style scoped>
+.new-tweets-available{
+    position: fixed;
+    z-index: 5;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    width: max-content;
+    display: block;
+    top: -100%;
+    background: var(--brand-color);
+    padding: .5rem;
+    color: var(--white-color);
+    border-radius: 1rem;
+    box-shadow: 0 4px 4px 0 rgba(50, 205, 50, .25);
+    text-decoration: none;
+    font-size: .75rem;
+    transition: all alternate-reverse 1500ms;
+}
+</style>

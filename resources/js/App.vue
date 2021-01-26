@@ -1,7 +1,7 @@
 <template>
   <div id="app" :class="{'auth-form-display': authForm}">
     <alert v-bind:alerts="errors"></alert>
-    <navbar-component v-bind:updateNav="$route.name" v-bind:guest="guest" v-bind:user="user" v-on:toggleProfile="toggleProfileState" v-on:logout="logout" v-on:newBroadcast="newBroadcast" v-bind:profileState="profileState"></navbar-component>
+    <navbar-component v-bind:updateNav="$route.name" v-bind:guest="guest" v-bind:user="user" v-on:toggleProfile="toggleProfileState" v-on:logout="logout" v-on:newBroadcast="newBroadcast" v-bind:profileState="profileState" :notification_count="notification_count"></navbar-component>
     <div class="container">
       <main class="main-wrapper">
         <div class="back-btn-div">
@@ -9,7 +9,7 @@
         </div>
         <profile-component v-if="!guest" v-bind:user="user" v-bind:profileState="profileState" v-on:logout="logout" v-on:newBroadcast="newBroadcast" v-on:updateProfile="updateProfile" v-on:toggleProfile="toggleProfileState"></profile-component>
         <transition :name="transitionName">
-          <router-view v-on:alertNotification="alertNotification" v-on:authentication="authenticate" v-bind:user="user" v-on:updateUser="updateUser" v-bind:createBroadcast="createBroadcast" v-on:newBroadcast="newBroadcast" v-on:closeBroadcast="closeBroadcast" v-on:viewImage="viewImage"/>
+          <router-view v-on:alertNotification="alertNotification" v-on:authentication="authenticate" v-bind:user="user" v-on:updateUser="updateUser" v-bind:createBroadcast="createBroadcast" v-on:newBroadcast="newBroadcast" v-on:closeBroadcast="closeBroadcast" v-on:viewImage="viewImage" v-bind:push_notifications_id="push_notifications_id"/>
         </transition>
       </main>
     </div>
@@ -158,7 +158,9 @@ export default {
         profileState: false,
         showLogout: false,
         createBroadcast: false,
-        transitionName: 'slide-left'
+        transitionName: 'slide-left',
+        push_notifications_id: [],
+        notification_count: 0
       }
     },
     components:{
@@ -181,6 +183,13 @@ export default {
         const toDepth = to.path.split('/').length;
         const fromDepth = from.path.split('/').length;
         this.transitionName = toDepth < fromDepth ? 'slide-right' : 'slide-left';
+      
+        if(this.$route.name == 'notifications'){
+          this.notification_count = 0;
+        }
+        if (from.name == 'notifications') {
+          this.push_notifications_id = [];
+        }
       }
     },
     mounted() {
@@ -188,7 +197,22 @@ export default {
         if ($(e.target).closest(".vs-content").length === 0) {
             $(this).fadeOut();
         }
-    });
+      });
+
+      // ECHO
+      window.Echo.channel('fuoye360_channel')
+        .listen('NewNotification', (e)=>{
+          e.PUSH_NOTIFICATION_RECEIVERS.forEach(id =>{
+            if (id == this.user.id) {
+              this.notification_count += 1;
+              e.PUSH_NOTIFICATION.forEach(push_notification => {
+                if(push_notification.receiver_id == this.user.id){
+                  this.push_notifications_id.push(push_notification.id);
+                }
+              });  
+            }
+          })
+        });
     },
     created(){
       axios.get('/api/user')

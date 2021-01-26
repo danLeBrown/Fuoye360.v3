@@ -2,26 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Resources\ShopResource;
-use Illuminate\Support\Facades\DB;
-use Auth;
 use App\User;
-use App\Product;
-use App\Wishlist;
-use App\Cart;
-use App\Views;
 use App\Notification;
 use App\FollowingTable;
-use Session;
-use App\Subscription;
-use App\ProductsView;
-use App\ProductsImpression;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Pagination\Paginator;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use App\Http\Resources\ShopResource;
+use Illuminate\Pagination\Paginator;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Image;
+use App\Events\NewNotification;
 
 class AccountController extends Controller
 {
@@ -181,6 +172,11 @@ class AccountController extends Controller
             'receiver_count' => count(FollowingTable::where('receiver_id', $receiver_id)->get()),
             'sender_count' => count(FollowingTable::where('sender_id', $user_id)->get()),
         );
+        $PUSH_NOTIFICATION_RECEIVERS = [];
+        $PUSH_NOTIFICATION = [];
+        array_push($PUSH_NOTIFICATION, $notification);
+        array_push($PUSH_NOTIFICATION_RECEIVERS, $receiver_id);
+        broadcast(new NewNotification($PUSH_NOTIFICATION_RECEIVERS, $PUSH_NOTIFICATION));
         return new ShopResource($data);
     }
 

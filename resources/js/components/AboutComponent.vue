@@ -45,11 +45,6 @@
         </div>
   </div>
 </template>
-<style scoped>
-.form-container .active{
-    border: 2px solid var(--brand-color);
-}
-</style>
 <script>
 export default {
     data() {

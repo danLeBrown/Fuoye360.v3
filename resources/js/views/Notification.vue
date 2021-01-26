@@ -1,9 +1,6 @@
 <template>
     <div>
         <div class="wrapper">
-            <!-- <div class='sb-text'>
-                <h3><i class='fas fa-bell'></i> Notifications</h3>
-            </div> -->
             <div></div>
             <div id="notification-wrapper" v-if="notifications.length > 0">
                 <div v-for="notification in notifications" v-bind:key="notification.id" class="notification-col">
@@ -27,6 +24,7 @@
                     <div v-else-if="notification.type == 'like-broadcast'"><router-link :to="{name: 'visit', params: {username: notification.sender.name}, query: {v: 'broadcast'}}"><img loading="lazy" :src="asset('storage/profile_images/'+notification.sender.image)" :alt="notification.sender.name"> <span class="t_success notifier">{{notification.sender.name}}</span></router-link> liked your broadcast <i class='fas fa-heart' style='color:limegreen;'></i><br><span class="time"> {{notification.relative_at}}</span></div>
                 
                     <div v-else-if="notification.type == 'comment-broadcast'"><router-link :to="{name: 'visit', params: {username: notification.sender.name}, query: {v: 'broadcast'}}"><img loading="lazy" :src="asset('storage/profile_images/'+notification.sender.image)" :alt="notification.sender.name"> <span class="t_success notifier">{{notification.sender.name}}</span></router-link> replied to your broadcast <i class='fas fa-comment' style='color:limegreen;'></i><br><span class="time"> {{notification.relative_at}}</span></div>
+                    <div v-if="notification.new == true" class="new-notification"><i class="fas fa-bell"></i> NEW</div>
                 </div>
                 <infinite-loading @infinite="infiniteHandler"></infinite-loading>
             </div>
@@ -52,6 +50,7 @@ export default {
             page: 1,
         }
     },
+    props: ["push_notifications_id"],
     components:{
         InfiniteLoading
     },
@@ -70,6 +69,9 @@ export default {
                 if (res.data.data.length) {
                     this.page += 1;
                     res.data.data.forEach(element => {
+                        if(this.push_notifications_id.includes(element.id)){
+                            element.new = true;
+                        }
                         element.data = element.data != null ? JSON.parse(element.data): null;
                     });
                     this.notifications.push(...res.data.data);
@@ -142,18 +144,29 @@ export default {
     .time {
         display: block;
         float: right;
-        color: var(--input-border-color);
         font-size: .7rem;
+        color: var(--input-border-color);
     }
 
     .notification-col:nth-child(even) .time {
-        color: var(--input-border-color);
+        color: var(--dark-color);
     }
 
     .notifier {
         font-weight: bold;
+        color: var(--dark-color);
     }
     a{
         text-decoration: none;
+    }
+    .new-notification{
+        display: block;
+        float: right;
+        background: var(--brand-color);
+        color: #fff;
+        padding: 0 .5rem;
+        border-radius: 1rem;
+        font-size: .55rem;
+        margin-right: 1rem;
     }
 </style>

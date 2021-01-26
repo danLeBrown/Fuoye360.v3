@@ -2,21 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Resources\ShopResource;
-use Illuminate\Support\Facades\DB;
-use Auth;
+use App\Cart;
 use App\User;
 use App\Product;
 use App\Wishlist;
-use App\Cart;
-use App\Views;
 use App\Notification;
-use App\FollowingTable;
-use Session;
-use App\Subscription;
 use App\ProductsView;
 use App\ProductsImpression;
+use Illuminate\Http\Request;
+use App\Events\NewNotification;
+use App\Http\Resources\ShopResource;
+// use Illuminate\Support\Facades\Session as Session;
+use Session;
 
 class ActionController extends Controller
 {
@@ -294,13 +291,15 @@ class ActionController extends Controller
                 // $notification->data = [];
                 $notification->type = 'sales';
                 $data = array();
-                foreach ($checkout as $key => $product) {
-                    $append  = [
-                        'qty'=> $product['qty'],
-                        'id' => $product['item']->id,
-                        'name' => $product['item']->name,
-                    ];
-                    array_push($data, $append);
+                if ($checkout != null) {
+                    foreach ($checkout as $key => $product) {
+                        $append  = [
+                            'qty'=> $product['qty'],
+                            'id' => $product['item']->id,
+                            'name' => $product['item']->name,
+                        ];
+                        array_push($data, $append);
+                    }
                 }
                 $notification->data = \json_encode($data);
                 $notification->save();
@@ -324,6 +323,12 @@ class ActionController extends Controller
             'shopping_cart' => $session_cart,
             'status' => $status
         );
+        $PUSH_NOTIFICATION_RECEIVERS = [];
+        $PUSH_NOTIFICATION = [];
+        array_push($PUSH_NOTIFICATION_RECEIVERS, $seller_id);
+        array_push($PUSH_NOTIFICATION, $notification);
+
+        broadcast(new NewNotification($PUSH_NOTIFICATION_RECEIVERS, $PUSH_NOTIFICATION));
         return new ShopResource($data);
    
     }

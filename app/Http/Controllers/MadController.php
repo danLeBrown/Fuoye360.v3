@@ -2,23 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Resources\ShopResource;
-use Illuminate\Support\Facades\DB;
 use Auth;
+use Session;
+use App\Cart;
 use App\User;
+use App\Views;
 use App\Product;
 use App\Wishlist;
-use App\Cart;
-use App\Views;
 use App\Notification;
-use App\FollowingTable;
-use Session;
-use App\Subscription;
 use App\ProductsView;
+use App\Subscription;
+use App\FollowingTable;
 use App\ProductsImpression;
-use Illuminate\Pagination\Paginator;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use App\Http\Resources\ShopResource;
+use Illuminate\Pagination\Paginator;
+use Intervention\Image\Facades\Image;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class MadController extends Controller
@@ -27,14 +28,19 @@ class MadController extends Controller
     {
         $products = Product::all();
         foreach ($products as $key => $product) {
-            if($product->views > 0){
-                for ($i=0; $i < $product->views ; $i++) { 
-                    $view = new ProductsView();
-                    $view->user_id = 1;
-                    $view->product_id = $product->id; 
-                    $view->save();
-                }
+            list($width, $height) = getimagesize(storage_path('app/public/product_images/'.$product->image));
+            //obtain ratio
+            $imageratio = $width/$height;
+
+            if($imageratio >= 1){
+                $newwidth = 600;
+                $newheight = 600 / $imageratio; 
             }
+            else{
+                $newwidth = 400;
+                $newheight = 400 / $imageratio;
+            };
+            $img = Image::make(storage_path('app/public/product_images/'.$product->image))->resize($newwidth, $newheight)->save(storage_path('app/public/product_images/'.$product->image));
         }
     }
 }

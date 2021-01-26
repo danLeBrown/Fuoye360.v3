@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Resources\ShopResource;
-use App\User;
-use Auth;
 use DB;
+use Auth;
 use App\Post;
-use App\PostsLike;
-use App\PostsRetweet;
-use App\FollowingTable;
-use App\Notification;
-use App\Timeago;
+use App\User;
 use DateTime;
+use App\PostsLike;
+use App\Notification;
+use App\PostsRetweet;
 use App\PostsBookmark;
-use App\PostsComment;
-use Illuminate\Pagination\Paginator;
+use App\FollowingTable;
+use App\Events\NewBroadcast;
+use Illuminate\Http\Request;
+use App\Events\NewNotification;
 use Illuminate\Support\Collection;
+use App\Http\Resources\ShopResource;
+use Illuminate\Pagination\Paginator;
+use Intervention\Image\Facades\Image;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Image;
 
 class BroadcastController extends Controller
 
@@ -584,7 +584,9 @@ class BroadcastController extends Controller
             'status' => $status,
             'likes' => $likes_count, 
         );
-
+        $PUSH_NOTIFICATION_RECEIVERS = [];
+        array_push($PUSH_NOTIFICATION_RECEIVERS, $blogger_id);
+        broadcast(new NewNotification($PUSH_NOTIFICATION_RECEIVERS, $notification->id));
         return new ShopResource($data);
 
     }
@@ -642,7 +644,9 @@ class BroadcastController extends Controller
             'status' => $status,
             'rebroadcasts' => $rebroadcasts, 
         );
-
+        $PUSH_NOTIFICATION_RECEIVERS = [];
+        array_push($PUSH_NOTIFICATION_RECEIVERS, $blogger_id);
+        broadcast(new NewNotification($PUSH_NOTIFICATION_RECEIVERS, $notification->id));
         return new ShopResource($data);
     }
 
@@ -1034,6 +1038,9 @@ class BroadcastController extends Controller
         }
         if ($inputStatus == 1 || $inputStatus == 2) {
             $status = 200;
+            $PUSH_NOTIFICATION_RECEIVERS = [];
+            $PUSH_NOTIFICATION = [];
+            $PUSH_BROADCAST = [];
             $followers = FollowingTable::where('receiver_id', $user_id)->get();
             if (count($followers) > 0) {
                 foreach ($followers as $key => $follower) {
@@ -1043,6 +1050,8 @@ class BroadcastController extends Controller
                     $notification->type = 'new-broadcast';
                     $notification->data = \json_encode([$broadcast->id]);
                     $notification->save();
+                    array_push($PUSH_NOTIFICATION_RECEIVERS, $follower->sender_id);
+                    array_push($PUSH_NOTIFICATION, $notification);
                 }
             }
             
@@ -1051,7 +1060,9 @@ class BroadcastController extends Controller
             'status' => $status,
             'broadcast'=> $broadcast
         );
-
+        array_push($PUSH_BROADCAST, $broadcast);
+        broadcast(new NewBroadcast($PUSH_NOTIFICATION_RECEIVERS, $PUSH_BROADCAST));
+        broadcast(new NewNotification($PUSH_NOTIFICATION_RECEIVERS, $PUSH_NOTIFICATION));
         return new ShopResource($data);
 
     }
@@ -1258,5 +1269,3 @@ class BroadcastController extends Controller
         //
     }
 }
-
-// comment_id
