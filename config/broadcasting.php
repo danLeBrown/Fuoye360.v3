@@ -36,11 +36,8 @@ return [
             'secret' => env('PUSHER_APP_SECRET'),
             'app_id' => env('PUSHER_APP_ID'),
             'options' => [
-                'cluster' => env('PUSHER_APP_CLUSTER'),
-                'encrypted' => true,
-                'host' => 'fuoye360.com',
-                'port' => 6001,
-                'scheme' => 'http'
+                'cluster' => 'mt1',
+                'useTLS' => true
             ],
         ],
 

@@ -105,8 +105,7 @@ export default {
     },
     mounted() {
         if(this.$route.params.page == undefined){
-            Echo.channel('fuoye360_channel')
-            .listen('NewBroadcast', (e)=>{
+          window.Echo.bind('NewNotification', (e)=>{
                 e.PUSH_NOTIFICATION_RECEIVERS.forEach(id =>{
                     console.log(e);
                     if (id == this.user.id) {

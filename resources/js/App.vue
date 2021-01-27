@@ -200,8 +200,7 @@ export default {
       });
 
       // ECHO
-      window.Echo.channel('fuoye360_channel')
-        .listen('NewNotification', (e)=>{
+      window.Echo.bind('NewNotification', (e)=>{
           e.PUSH_NOTIFICATION_RECEIVERS.forEach(id =>{
             if (id == this.user.id) {
               this.notification_count += 1;

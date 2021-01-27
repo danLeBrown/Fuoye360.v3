@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => 'cf3904d7793b9443d859670bf7d12a7236cb0d71',
+    'reference' => '6028bef2099613086c63e08cfc8a4f5baf198cf3',
     'name' => 'laravel/laravel',
   ),
   'versions' => 
@@ -458,7 +458,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => 'cf3904d7793b9443d859670bf7d12a7236cb0d71',
+      'reference' => '6028bef2099613086c63e08cfc8a4f5baf198cf3',
     ),
     'laravel/sanctum' => 
     array (
@@ -801,12 +801,12 @@
     ),
     'pusher/pusher-php-server' => 
     array (
-      'pretty_version' => 'v3.4.1',
-      'version' => '3.4.1.0',
+      'pretty_version' => 'v4.1.5',
+      'version' => '4.1.5.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'a5fcdc65efd8d9a8291efbe01d326ec7ef5d5cee',
+      'reference' => '251f22602320c1b1aff84798fe74f3f7ee0504a9',
     ),
     'ralouphie/getallheaders' => 
     array (
