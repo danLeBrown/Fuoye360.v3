@@ -27,12 +27,17 @@ class NewBroadcast implements ShouldBroadcast
         $this->PUSH_BROADCASTS = $PUSH_BROADCASTS;
     }
 
-    public function broadcastWithPUSH_BROADCASTS()
+    public function broadcastWith()
     {
         return [
             'PUSH_NOTIFICATION_RECEIVERS'=> $this->PUSH_NOTIFICATION_RECEIVERS,
             'PUSH_BROADCASTS' => $this->PUSH_BROADCASTS
         ];
+    }
+
+    public function broadcastAs()
+    {
+        return 'NewBroadcast';
     }
     /**
      * Get the channels the event should broadcast on.

@@ -34,6 +34,12 @@ class NewNotification implements ShouldBroadcast
             'PUSH_NOTIFICATION'=> $this->PUSH_NOTIFICATION
         ];
     }
+
+    public function broadcastAs()
+    {
+        return 'NewNotification';
+    }
+
     /**
      * Get the channels the event should broadcast on.
      *
