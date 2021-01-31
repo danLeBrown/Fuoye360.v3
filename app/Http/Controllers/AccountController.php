@@ -215,18 +215,7 @@ class AccountController extends Controller
                 $account->is_following = count(FollowingTable::where(['receiver_id'=> $account->receiver_id, 'sender_id' => $user_id])->get()) > 0 ? true : false;
             }
         }
-
-        // $accounts = DB::select("SELECT following_tables.*, users.id, users.name, users.image FROM following_tables, users WHERE sender_id = $id AND receiver_id = users.id ORDER BY following_tables.created_at DESC LIMIT 15");
-
-
-        // $data = array(
-        //     'status' => 200,
-        //     'accounts' => $accounts
-        // );
-
         return ShopResource::collection($accounts);
-
-        // return new ShopResource($data);
     }
 
     public function hasFollower($id)
@@ -243,18 +232,7 @@ class AccountController extends Controller
                 $account->is_following = count(FollowingTable::where(['receiver_id'=> $account->sender_id, 'sender_id' => $user_id])->get()) > 0 ? true : false;
             }
         }
-
-        // $accounts = DB::select("SELECT following_tables.*, users.id, users.name, users.image FROM following_tables, users WHERE sender_id = $id AND receiver_id = users.id ORDER BY following_tables.created_at DESC LIMIT 15");
-
-
-        // $data = array(
-        //     'status' => 200,
-        //     'accounts' => $accounts
-        // );
-
         return ShopResource::collection($accounts);
-
-        // return new ShopResource($data);
     }
     
     public function notifications()
@@ -267,14 +245,7 @@ class AccountController extends Controller
             $notification->sender = $user;
             $notification->relative_at = $this->updateTime($notification->created_at);
         }
-
-        // $data = array(
-        //     'status' => 200,
-        //     'notifications' => $notifications
-        // );
-        // return new ShopResource($data);
         return ShopResource::collection($notifications);
-
     }
 
     public function deleteNotification($id)

@@ -689,6 +689,7 @@ export default {
                     $(".add-to-inventory button[type=submit]").html('SAVE');
                     console.log(res.data.data);
                     this.products.shift(res.data.data.product);
+                    this.$emit('update_products_lifetime', res.data.data.products_lifetime);
                     this.closeThisModal(e);
                     $(e.target).reset();
                 })

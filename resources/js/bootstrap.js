@@ -33,7 +33,7 @@ import Echo from 'laravel-echo';
 
 window.Pusher = require('pusher-js');
 
-var pusher = new Pusher(process.env.PUSHER_APP_KEY, {
+var pusher = new Pusher('7902535cd6425c91260b', {
     cluster: 'mt1'
 });
 

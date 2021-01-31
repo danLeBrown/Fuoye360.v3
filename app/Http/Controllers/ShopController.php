@@ -17,6 +17,7 @@ use Session;
 use App\Subscription;
 use App\ProductsView;
 use App\ProductsImpression;
+use App\ProductsLifetime;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -231,12 +232,12 @@ class ShopController extends Controller
     {
         $user_id = auth('sanctum')->user()->id;
         $request->validate([
-            'description' => 'required',
+            'name' => 'required',
+            'image' => 'required',
             'price' => 'required',
             'status' => 'required',
             'category' => 'required',
-            'name' => 'required',
-            'image' => 'required',
+            'description' => 'required',
         ]);
         $product = new Product();
         $product->name = $request->input('name');
@@ -274,11 +275,21 @@ class ShopController extends Controller
                 $notification->save();
             }
         }
+        $add_to_productslifetime = ProductsLifetime::where('user_id', $user_id)->get();
+        if(count($add_to_productslifetime) > 0){
+            $add_to_productslifetime->count += 1; 
+            $add_to_productslifetime->save();
+        }else{
+            $add_to_productslifetime = new ProductsLifetime();
+            $add_to_productslifetime->user_id = $user_id;
+            $add_to_productslifetime->count = 1;
+            $add_to_productslifetime->save();
+        }
         $data = [
             'status' => 200,
             'product' => $product,
+            'products_lifetime' => $add_to_productslifetime
         ];
-
         return new ShopResource($data);
     }
 

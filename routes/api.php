@@ -43,7 +43,7 @@ Route::middleware('auth:sanctum')->get('/authenticated', function () {
 });
 
 Auth::routes();
-Route::post('/dashboard/edit-profile', 'DashboardController@edit');
+// Route::post('/dashboard/edit-profile', 'DashboardController@edit');
 Route::get('/shop/wishlist', 'ShopController@wishlist');
 Route::get('/shop/trending', 'ShopController@getTrending');
 Route::get('/shop/inventory', 'ShopController@inventory');
@@ -52,7 +52,6 @@ Route::get('/shop/cart', 'ShopController@cart');
 Route::get('/shop/buy/{category}', 'ShopController@category');
 
 Route::resource('shop', 'ShopController');
-Route::get('/broadcasts', 'NewBroadcastController@index');
 
 Route::get('/broadcast/bookmarks', 'BroadcastController@bookmarks');
 Route::get('/broadcast/trending', 'BroadcastController@trending');
@@ -103,4 +102,7 @@ Route::post('action/{product_id}/add-to-cart/{qty}', 'ActionController@addToCart
 Route::post('action/{seller_id}/remove-seller-from-cart', 'ActionController@removeSellerFromCart');
 Route::post('action/{seller_id}/contact-seller', 'ActionController@contactSeller');
 Route::post('action/{product_id}/remove-product-from-cart/{seller_id}', 'ActionController@removeProductFromCart');
-Route::post('action/{product_id}/product-impression/{type}', 'ActionController@productImpressions');
+Route::post( 'action/{product_id}/product-impression/{type}', 'ActionController@productImpressions');
+Route::get('search/{query}/users', 'ActionController@searchUsers');
+Route::get('search/{query}/shop', 'ActionController@searchProducts');
+Route::get('search/{query}/broadcast', 'ActionController@searchBroadcasts');

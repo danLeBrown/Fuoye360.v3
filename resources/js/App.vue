@@ -1,7 +1,7 @@
 <template>
   <div id="app" :class="{'auth-form-display': authForm}">
     <alert v-bind:alerts="errors"></alert>
-    <navbar-component v-bind:updateNav="$route.name" v-bind:guest="guest" v-bind:user="user" v-on:toggleProfile="toggleProfileState" v-on:logout="logout" v-on:newBroadcast="newBroadcast" v-bind:profileState="profileState" :notification_count="notification_count"></navbar-component>
+    <navbar-component v-bind:updateNav="$route.name" v-bind:guest="guest" v-bind:user="user" v-on:toggleProfile="toggleProfileState" v-on:logout="logout" v-on:newBroadcast="newBroadcast" v-bind:profileState="profileState" :notification_count="notification_count" v-on:searchQuery="updateSearchView" v-bind:revertSearch="revertSearch"></navbar-component>
     <div class="container">
       <main class="main-wrapper">
         <div class="back-btn-div">
@@ -9,7 +9,7 @@
         </div>
         <profile-component v-if="!guest" v-bind:user="user" v-bind:profileState="profileState" v-on:logout="logout" v-on:newBroadcast="newBroadcast" v-on:updateProfile="updateProfile" v-on:toggleProfile="toggleProfileState"></profile-component>
         <transition :name="transitionName">
-          <router-view v-on:alertNotification="alertNotification" v-on:authentication="authenticate" v-bind:user="user" v-on:updateUser="updateUser" v-bind:createBroadcast="createBroadcast" v-on:newBroadcast="newBroadcast" v-on:closeBroadcast="closeBroadcast" v-on:viewImage="viewImage" v-bind:push_notifications_id="push_notifications_id"/>
+          <router-view v-on:alertNotification="alertNotification" v-on:authentication="authenticate" v-bind:user="user" v-on:updateUser="updateUser" v-bind:createBroadcast="createBroadcast" v-on:newBroadcast="newBroadcast" v-on:closeBroadcast="closeBroadcast" v-on:viewImage="viewImage" v-bind:push_notifications_id="push_notifications_id" v-on:update_products_lifetime="update_products_lifetime" v-bind:searchData="searchData" v-on:changeSearchState="changeSearchState" v-on:searchQuery="updateSearchView"/>
         </transition>
       </main>
     </div>
@@ -160,7 +160,9 @@ export default {
         createBroadcast: false,
         transitionName: 'slide-left',
         push_notifications_id: [],
-        notification_count: 0
+        notification_count: 0,
+        searchData: '',
+        revertSearch: true,
       }
     },
     components:{
@@ -200,7 +202,7 @@ export default {
       });
 
       // ECHO
-      window.Echo.bind('NewNotification', (e)=>{
+      Echo.bind('NewNotification', (e)=>{
           e.PUSH_NOTIFICATION_RECEIVERS.forEach(id =>{
             if (id == this.user.id) {
               this.notification_count += 1;
@@ -222,6 +224,16 @@ export default {
       .catch((err)=>console.log(err));
     },
     methods:{
+      async updateSearchView(data){
+        this.searchData = await data.query;
+        this.revertSearch = false;
+      },
+      changeSearchState(){
+        this.revertSearch = true;
+      },
+      update_products_lifetime(data){
+        this.user.products_lifetime = data;
+      },
       alertNotification(alert){
         this.errors = alert;
       },

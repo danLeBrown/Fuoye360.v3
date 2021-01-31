@@ -25,8 +25,8 @@
                             <a href="#" v-else @click.prevent="logout" class="logout">EXIT <i class="fas fa-sign-out-alt"></i></a>
                         </div>
                     </div>
-                    <form v-else class="dynamic-div search-form">
-                        <input type="text" class="search-input" ><button class="search-btn"><i class="fas fa-search"></i></button>
+                    <form v-else class="dynamic-div search-form" @submit.prevent="searchQuery($event)">
+                        <input type="text" class="search-input" v-model="query" placeholder="Type search here..."><button class="search-btn" type="button" @click.prevent="searchQuery($event)"><span v-if="revertSearch"><i class="fas fa-search"></i></span><span class="loading-circle" v-else></span></button>
                     </form>
                 </div>
             </div>
@@ -94,7 +94,7 @@
 <script>
 export default {
     name: 'navbar',
-    props: ["updateNav", "guest", "user", "profileState", "notification_count"],
+    props: ["updateNav", "guest", "user", "profileState", "notification_count", "revertSearch"],
     data(){
         return{
             navStatus:[],
@@ -103,6 +103,8 @@ export default {
             // guest: true
             st: 0,
             lastScrollTop: 0,
+            query: '',
+                
         }
     },
     watch: {
@@ -203,6 +205,11 @@ export default {
             
     },
     methods:{ 
+        async searchQuery(e){
+            if (this.query != '') {
+                await this.$emit('searchQuery', {query: this.query})
+            }
+        },
         resetNavStatus(page){
             // console.log(page);
             this.navStatus.forEach(element => {
@@ -244,13 +251,16 @@ export default {
 </script>
 <style scoped>
 .search-form{
-    display: block;
+    justify-content: flex-end;
+    margin-left: .25rem;
 }
 .search-input{
     outline: none;
     font: inherit;
     border-radius: 0.5rem 0px 0px 0.5rem;
     border: none;
+    padding: .5rem;
+    flex: 10;
 }
 .search-btn{
     font: inherit;
@@ -258,6 +268,8 @@ export default {
     border-radius: 0 .5rem .5rem 0;
     background: var(--brand-color);
     color: var(--white-color);
+    padding: .5rem .8rem;
+    flex: 2;
 }
 .notification-count{
     position:absolute;

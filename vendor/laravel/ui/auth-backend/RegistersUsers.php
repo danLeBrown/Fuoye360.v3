@@ -6,6 +6,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\User;
 
 trait RegistersUsers
 {
@@ -39,9 +40,12 @@ trait RegistersUsers
             return $response;
         }
 
+        $user = User::find($this->guard()->user()->id);
+        $api_token = $user->createToken('fuoye360_web')->plainTextToken;
         return $request->wantsJson()
-                    ? new JsonResponse([], 201)
-                    : redirect($this->redirectPath());
+            ? new JsonResponse(["token" => $api_token], 200)
+            : redirect()->intended($this->redirectPath());
+    
     }
 
     /**

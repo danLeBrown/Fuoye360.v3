@@ -585,8 +585,10 @@ class BroadcastController extends Controller
             'likes' => $likes_count, 
         );
         $PUSH_NOTIFICATION_RECEIVERS = [];
+        $PUSH_NOTIFICATION = [];
         array_push($PUSH_NOTIFICATION_RECEIVERS, $blogger_id);
-        broadcast(new NewNotification($PUSH_NOTIFICATION_RECEIVERS, $notification->id));
+        array_push($PUSH_NOTIFICATION, $notification);
+        broadcast(new NewNotification($PUSH_NOTIFICATION_RECEIVERS, $PUSH_NOTIFICATION));
         return new ShopResource($data);
 
     }
@@ -645,8 +647,10 @@ class BroadcastController extends Controller
             'rebroadcasts' => $rebroadcasts, 
         );
         $PUSH_NOTIFICATION_RECEIVERS = [];
+        $PUSH_NOTIFICATION = [];
         array_push($PUSH_NOTIFICATION_RECEIVERS, $blogger_id);
-        broadcast(new NewNotification($PUSH_NOTIFICATION_RECEIVERS, $notification->id));
+        array_push($PUSH_NOTIFICATION, $notification);
+        broadcast(new NewNotification($PUSH_NOTIFICATION_RECEIVERS, $PUSH_NOTIFICATION));
         return new ShopResource($data);
     }
 
@@ -914,6 +918,12 @@ class BroadcastController extends Controller
             'status' => 200,
             'comment' => $post
         );
+        $PUSH_NOTIFICATION_RECEIVERS = [];
+        $PUSH_NOTIFICATION = [];
+        array_push($PUSH_NOTIFICATION_RECEIVERS, $notification->receiver_id);
+        array_push($PUSH_NOTIFICATION, $notification);
+        broadcast(new NewNotification($PUSH_NOTIFICATION_RECEIVERS, $PUSH_NOTIFICATION));
+
         return new ShopResource($data);
     }
 

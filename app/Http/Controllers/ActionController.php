@@ -2,21 +2,148 @@
 
 namespace App\Http\Controllers;
 
+use Session;
 use App\Cart;
 use App\User;
 use App\Product;
 use App\Wishlist;
 use App\Notification;
 use App\ProductsView;
+use App\FollowingTable;
 use App\ProductsImpression;
+use App\PostsLike;
+use App\Post;
+use DateTime;
+use App\PostsRetweet;
+use App\PostsBookmark;
+
 use Illuminate\Http\Request;
-use App\Events\NewNotification;
-use App\Http\Resources\ShopResource;
 // use Illuminate\Support\Facades\Session as Session;
-use Session;
+use App\Events\NewNotification;
+use Illuminate\Support\Collection;
+use App\Http\Resources\ShopResource;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ActionController extends Controller
 {
+    public function updateTime($timestamp)
+    {
+        $time_ago = strtotime($timestamp);
+        $current_time    = time();
+        $time_difference = $current_time - $time_ago;
+        $seconds         = $time_difference;
+
+        $minutes = round($seconds / 60); // value 60 is seconds
+        $hours   = round($seconds / 3600); //value 3600 is 60 minutes * 60 sec
+        $days    = round($seconds / 86400); //86400 = 24 * 60 * 60;
+        $weeks   = round($seconds / 604800); // 7*24*60*60;
+        $months  = round($seconds / 2629440); //((365+365+365+365+366)/5/12)*24*60*60
+        $years   = round($seconds / 31553280); //(365+365+365+365+366)/5 * 24 * 60 * 60
+
+        if ($seconds <= 60) {
+
+            return "1s";
+        } else if ($minutes <= 60) {
+
+            if ($minutes == 1) {
+
+                return "1m";
+            } else {
+
+                return $minutes . "m";
+            }
+        } else if ($hours <= 24) {
+
+            if ($hours == 1) {
+
+                return "1hr";
+            } else {
+
+                return $hours . "hrs";
+            }
+        } else if ($days <= 7) {
+
+            if ($days == 1) {
+
+                return "1d";
+            } else {
+
+                return $days . "d";
+            }
+        }
+        /* 
+            else if ($weeks <= 4.3){
+
+                if ($weeks == 1){
+
+                    return "a week ago";
+
+                } else {
+
+                    return "$weeks weeks ago";
+
+                }
+
+            } else if ($months <= 12){
+
+                if ($months == 1){
+
+                    return "a month ago";
+
+                } else {
+
+                    return "$months months ago";
+
+                }
+
+            } else {
+
+                if ($years == 1){
+
+                    return "1 year ago";
+
+                } else {
+
+                    return "$years years ago";
+
+                }
+            */ else {
+            // return getdate($time_ago);
+            return getdate($time_ago)['mday'] . " " . substr(getdate($time_ago)['month'], 0, 3) . " '" . substr(getdate($time_ago)['year'], 2, 4);
+        }
+    }
+
+    public function checkForLinks($text)
+    {
+        // The Regular Expression filter
+        // $reg_exUrl = "/(http|https|ftp|ftps)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/";
+        // $reg_exUrl = "/(((http|https|ftp|ftps)\:\/\/)|(www\.))[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\:[0-9]+)?(\/\S*)?/";
+        $reg_exUrl = "/(?i)\b((?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))/";
+
+
+        // The Text you want to filter for urls
+        // $text = "The text you want to filter goes here. http://google.com";
+
+        // Check if there is a url in the text
+        if (preg_match($reg_exUrl, $text, $url)) {
+
+            // make the urls hyper links
+            return preg_replace($reg_exUrl, "<a target='_blank' href='" . $url[0] . "'>" . $url[0] . "</a> ", $text);
+        } else {
+
+            // if no urls in the text just return the text
+            return $text;
+        }
+    }
+
+    public function paginate($items, $perPage = 15, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+    }
+
     public function addToWishlist($product_id)
     {
         $user_id = auth('sanctum')->user()->id;
@@ -331,5 +458,114 @@ class ActionController extends Controller
         broadcast(new NewNotification($PUSH_NOTIFICATION_RECEIVERS, $PUSH_NOTIFICATION));
         return new ShopResource($data);
    
+    }
+
+    public function searchUsers($query)
+    {
+        $user_id = auth('sanctum')->user()->id;
+        if(is_string($query)){
+            $users = User::select('id', 'name', 'image')
+            ->where('name', 'LIKE', "%{$query}%")
+            ->get();
+            foreach ($users as $key => $account) {
+                $account->follows_you = count(FollowingTable::where(['sender_id' => $account->id, 'receiver_id' => $user_id])->get()) > 0 ? true : false;
+                if ($user_id != $account->id) {
+                    $account->is_following = count(FollowingTable::where(['receiver_id' => $account->id, 'sender_id' => $user_id])->get()) > 0 ? true : false;
+                }
+            }
+            return new ShopResource($this->paginate($users));
+        }
+    }
+    public function searchProducts($query)
+    {
+        $user_id = auth('sanctum')->user()->id;
+        if (is_string($query)) {
+            $products = Product::where('name', 'LIKE', "%{$query}%")
+            ->orWhere('description', 'LIKE', "%{$query}%")
+            ->get();
+            foreach ($products as $key => $product) {
+                $user = User::select('name', 'image')->where('id', $product->user_id)->first();
+                $product->user = $user;
+                $product->price = number_format($product->price, 0, '.', ',');
+                $product->in_wishlist = count(Wishlist::where(['user_id' => $user_id, 'product_id' => $product->id])->get()) > 0 ? true : false;    
+            }
+            return new ShopResource($this->paginate($products));
+        }
+    }
+    public function searchBroadcasts($query)
+    {
+        $user_id = auth('sanctum')->user()->id;
+        if (is_string($query)) {
+            $posts = Post::where('body', 'LIKE', "%{$query}%")
+            ->get();
+            foreach ($posts as $key => $post) {
+                $user = User::select('name', 'image')->where('id', $post->user_id)->first();
+                $post->user = $user;
+                $post->likes = count(PostsLike::where("post_id", $post->id)->get());
+                $post->is_liked = count(PostsLike::where(["user_id" => $user_id, "post_id" => $post->id])->get()) > 0 ? true : false;
+
+                $post->rebroadcasts = count(PostsRetweet::where("post_id", $post->id)->get());
+                $post->is_rebroadcast = count(PostsRetweet::where(["user_id" => $user_id, "post_id" => $post->id])->get()) > 0 ? true : false;
+
+                $post->comments = count(Post::where('post_id', $post->id)->get());
+
+                $post->timeago = $this->updateTime($post->created_at);
+                $post->info_display = 'retweets';
+                $post->body = $this->checkForLinks($post->body);
+                $post->bookmarked = count(PostsBookmark::where(["user_id" => $user_id, "post_id" => $post->id])->get()) > 0 ? true : false;
+
+                $post->type = 'broadcast';
+                $post->is_comment = $post->post_id != null ? true : false;
+                if ($post->is_comment) {
+                    $post->type = 'comment';
+                    $original_post = Post::find($post->post_id);
+                    if ($original_post->user_id == $post->user_id) {
+                        $post->is_thread = true;
+                        $post->comment_is_thread = true;
+                        $post->type = "thread";
+                    } else {
+                        $user = User::select('name', 'image')->where('id', $original_post->user_id)->first();
+                        $original_post->user = $user;
+                        $original_post->likes = count(PostsLike::where("post_id", $original_post->id)->get());
+                        $original_post->is_liked = count(PostsLike::where(["user_id" => $user_id, "post_id" => $original_post->id])->get()) > 0 ? true : false;
+
+                        $original_post->rebroadcasts = count(PostsRetweet::where("post_id", $original_post->id)->get());
+                        $original_post->is_rebroadcast = count(PostsRetweet::where(["user_id" => $user_id, "post_id" => $original_post->id])->get()) > 0 ? true : false;
+
+                        $original_post->comments = count(Post::where('post_id', $original_post->id)->get());
+
+                        $original_post->timeago = $this->updateTime($original_post->created_at);
+                        $original_post->info_display = 'retweets';
+                        $original_post->body = $this->checkForLinks($original_post->body);
+                        $original_post->bookmarked = count(PostsBookmark::where(["user_id" => $user_id, "post_id" => $original_post->id])->get()) > 0 ? true : false;
+
+                        $original_post->type = 'broadcast';
+                        $original_post->is_following = count(FollowingTable::where(['sender_id' => $user_id, 'receiver_id' => $original_post->user_id])->get()) > 0 ? true : false;
+                        $original_post->is_comment = $original_post->post_id != null ? true : false;
+                        if ($original_post->is_comment) {
+                            $original_post->type = 'comment';
+                            $original_post = Post::find($original_post->post_id);
+                            if ($original_post->user_id == $post->user_id) {
+                                $original_post->is_thread = true;
+                                $post->comment_is_thread = true;
+                                $original_post->type = "thread";
+                            }
+                        } else {
+                            if ($original_post->post_id == null && count(Post::where(['post_id' => $original_post->id, 'user_id' => $original_post->user_id])->get()) > 0) {
+                                $original_post->is_thread = true;
+                                $original_post->type = "thread";
+                            }
+                        }
+                        $post->original_post = $original_post;
+                    }
+                } else {
+                    if ($post->post_id == null && count(Post::where(['post_id' => $post->id, 'user_id' => $post->user_id])->get()) > 0) {
+                        $post->is_thread = true;
+                        $post->type = "thread";
+                    }
+                }    
+            }
+            return new ShopResource($this->paginate($posts));
+        }
     }
 }

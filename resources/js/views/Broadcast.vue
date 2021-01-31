@@ -105,7 +105,7 @@ export default {
     },
     mounted() {
         if(this.$route.params.page == undefined){
-          window.Echo.bind('NewNotification', (e)=>{
+            Echo.bind('NewBroadcast', (e)=>{
                 e.PUSH_NOTIFICATION_RECEIVERS.forEach(id =>{
                     console.log(e);
                     if (id == this.user.id) {

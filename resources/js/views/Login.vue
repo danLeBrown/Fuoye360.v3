@@ -13,7 +13,7 @@
                     <span class="hr-line"></span>
                 </div>
             </div>
-            <form action="" method="POST" @submit.prevent="login">
+            <form @submit.prevent="login">
                 <input type="hidden" name="csrf_token" :value="csrf()">
                 <div class="input-div">
                     <label for="email"><i class="fas fa-envelope"></i> Email</label>
@@ -22,8 +22,8 @@
                 </div>
                 <div class="input-div">
                     <label for="password"><i class="fas fa-lock"></i> Password</label>
-                    <input required type="password" name="password" id="password" v-model="form.password">
-                    <button id="show-password" type="button"><i class="fas fa-eye"></i> </button>
+                    <input required :type="!showPassword? 'password': 'text'" name="password" id="password" v-model="form.password">
+                    <button type="button" id="show-password" @click="showPassword = !showPassword"><span v-if="!showPassword"><i class="fas fa-eye"></i></span><span v-else><i class="fas fa-eye-slash"></i></span></button>
                 </div>
                 <div>
                     <input type="checkbox" name="remember" id="remember" >
@@ -49,7 +49,8 @@ export default {
                 email: "",
                 password: "",
                 device_name: "fuoye360_webapp"
-            }
+            },
+            showPassword: false
         }
     },
     mounted(){
@@ -67,18 +68,6 @@ export default {
         $('.form-container label').click(function() {
             $(this).parent().find('input').focus();
         });
-
-        $("#show-password").click(function(){
-            let x = $("#password");
-            if(x.attr('type') == 'password'){
-                x.attr('type', 'text');
-                $(this).html('<i class="fas fa-eye-slash">');
-            }else{
-                x.attr('type', 'password');
-                $(this).html('<i class="fas fa-eye">');
-            }
-        });
-
     },
     created(){
         this.currentPage = '<i class="fas fa-lock"> Login';

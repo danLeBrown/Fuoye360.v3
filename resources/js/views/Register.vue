@@ -34,18 +34,12 @@
                 </div>
                 <div class="input-div">
                     <label for="password"><i class="fas fa-lock"></i> Password</label>
-                    <input required type="password" name="password" autocomplete="new-password" id="password" v-model="form.password">
-                    <button type="button" id="show-password"><i class="fas fa-eye"></i> </button>
+                    <input required :type="!showPassword? 'password': 'text'" name="password" autocomplete="new-password" id="password" v-model="form.password">
+                    <button type="button" id="show-password" @click="showPassword = !showPassword"><span v-if="!showPassword"><i class="fas fa-eye"></i></span><span v-else><i class="fas fa-eye-slash"></i></span></button>
                     <div class="form-validation">
                     </div>
                     <small v-if="form.password.length > 1 && form.password.length < 8" style="position:absolute;bottom:-20px;color:red;">*Password must be more than 8 characters</small>
                 </div>
-                <!-- <div class="input-div">
-                    <label for="password_confirmation"><i class="fas fa-lock"></i> Confirm Password</label>
-                    <input type="password" name="password_confirmation" autocomplete="new-password">
-                    <div class="form-validation">
-                    </div>
-                </div> -->
                 <button type="submit" name="signup-btn" style="margin-top:.25rem;" @click.prevent="register">Signup</button>
                 <div>
                     <p>By signing up, you agree to our <a href="/terms" target="_blank">terms and conditons</a></p>
@@ -66,7 +60,8 @@ export default {
                 mobile_number:"",
                 device_name: "fuoye360_webapp"
             },
-            errors :[]
+            errors :[],
+            showPassword: false
         }
     },
     mounted(){
@@ -83,17 +78,6 @@ export default {
         });
         $('.form-container label').click(function() {
             $(this).parent().find('input').focus();
-        });
-
-        $("#show-password").click(function(){
-            let x = $("#password");
-            if(x.attr('type') == 'password'){
-                x.attr('type', 'text');
-                $(this).html('<i class="fas fa-eye-slash">');
-            }else{
-                x.attr('type', 'password');
-                $(this).html('<i class="fas fa-eye">');
-            }
         });
     },
     created(){

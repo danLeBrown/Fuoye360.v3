@@ -92,19 +92,19 @@
                     <infinite-loading @infinite="infiniteHandler"></infinite-loading>
                 </div>
                 <div v-else class="idb">
-                        <div class="shop-empty-col">
-                            <img loading="lazy" :src="asset('assets/illustrations/example-animate.svg')" alt="">
-                            <div v-if="$route.query.v == 'follower'">
-                                <p>Oops! {{visited.name != user.name? visited.name+" has" : 'You have'}}  no followers yet</p>Probably a boring guy
-                                <br><br>
-                                <router-link :to="{name: 'shop', params:{page:'buy'}}"><i class="fas fa-search"></i> Find exciting Shops</router-link>
-                            </div>
-                            <div v-else>
-                                <p>Hmmm! {{visited.name != user.name? visited.name+" is" : 'You are'}}  following nobody yet</p>Probably a boring guy
-                                <br><br>
-                                <router-link :to="{name: 'shop', params:{page:'buy'}}"><i class="fas fa-search"></i> Find exciting Shops</router-link>
-                            </div>
+                    <div class="shop-empty-col">
+                        <img loading="lazy" :src="asset('assets/illustrations/example-animate.svg')" alt="">
+                        <div v-if="$route.query.v == 'follower'">
+                            <p>Oops! {{visited.name != user.name? visited.name+" has" : 'You have'}}  no followers yet</p>Probably a boring guy
+                            <br><br>
+                            <router-link :to="{name: 'shop', params:{page:'buy'}}"><i class="fas fa-search"></i> Find exciting Shops</router-link>
                         </div>
+                        <div v-else>
+                            <p>Hmmm! {{visited.name != user.name? visited.name+" is" : 'You are'}}  following nobody yet</p>Probably a boring guy
+                            <br><br>
+                            <router-link :to="{name: 'shop', params:{page:'buy'}}"><i class="fas fa-search"></i> Find exciting Shops</router-link>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
