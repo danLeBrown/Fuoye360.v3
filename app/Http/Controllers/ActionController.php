@@ -4,25 +4,27 @@ namespace App\Http\Controllers;
 
 use Session;
 use App\Cart;
+use App\Post;
 use App\User;
+use DateTime;
 use App\Product;
 use App\Wishlist;
+use App\PostsLike;
 use App\Notification;
+use App\PostsRetweet;
 use App\ProductsView;
+use App\PostsBookmark;
 use App\FollowingTable;
 use App\ProductsImpression;
-use App\PostsLike;
-use App\Post;
-use DateTime;
-use App\PostsRetweet;
-use App\PostsBookmark;
 
 use Illuminate\Http\Request;
 // use Illuminate\Support\Facades\Session as Session;
+use App\Mail\SendFeedbackMail;
 use App\Events\NewNotification;
 use Illuminate\Support\Collection;
 use App\Http\Resources\ShopResource;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ActionController extends Controller
@@ -567,5 +569,24 @@ class ActionController extends Controller
             }
             return new ShopResource($this->paginate($posts));
         }
+    }
+
+    public function sendFeedback(Request $request)
+    {
+        $this->validate($request, [
+            'email'=> ["email", "required", "string"],
+            'message'=> ["required", "string"],
+            'name' => ["required", "string"]
+        ]);
+        $feedback = [
+            'name'=> $request->input('name'),
+            'email'=>$request->input('email'),
+            'message'=>$request->input('message')
+        ];
+        $data = [
+            'message'=> 'Thank you for taking your time to make us serve you better.'
+        ];
+        Mail::to('fuoye360@gmail.com')->send(new SendFeedbackMail($feedback));
+        return response(new ShopResource($data));
     }
 }

@@ -94,6 +94,7 @@ Route::post('account/{id}/unfollow', 'AccountController@unfollow');
 Route::post('account/update', 'AccountController@store');
 
 
+Route::post('action/feedback', 'ActionController@sendFeedback');
 Route::post('action/{product_id}/add-to-wishlist', 'ActionController@addToWishlist');
 Route::post('action/{product_id}/update-views', 'ActionController@updateViews');
 Route::post('action/{product_id}/remove-from-wishlist', 'ActionController@removeFromWishlist');

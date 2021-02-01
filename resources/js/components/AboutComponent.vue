@@ -1,5 +1,95 @@
 <template>
     <div class="" id="about-page">
+        <div class="main-txt"><br>
+            <div class="div-header">
+                <h1 style="white-space:normal;line-height: 5rem;font-size:50px;text-align:left;"><span class="typewrite"></span>.</h1>
+            </div>
+            <div class="intro-div">
+                <p><span class="t_success">FUOYE360</span> is your favourite <span class="t_success">problem SOLVING community</span> created to provide solutions to some of the prevailing Educational, Social, Entrepreneurship challenges we face in our everyday lives.</p>
+            </div>
+        </div>
+        <div class="how-it-works wrapper">
+            <div class="div-header" style="color:var(--brand-color)"><br>
+                <h2>How <span>FUOYE360</span> Works</h2>
+            </div><br>
+            <div class="div-content">
+                <div class="i-rows" data-aos="fade-up">
+                    <div class="fig-div">
+                        <span class="lg-fig">1</span>
+                    </div>
+                    <div class="text-div">
+                        <h3 class="std-out-two"><i class="fas fa-lock"></i> Create An Account</h3>
+                        <p>
+                            <router-link :to="{name:'register'}" style="color: var(--dark-color);">Creating an account</router-link> allows you to Buy, Sell and do other exciting things on FUOYE360
+                        </p>
+                    </div>
+                </div>
+                <div class="i-rows" data-aos="fade-up" >
+                    <div class="fig-div">
+                        <span class="lg-fig">2</span>
+                    </div>
+                    <div class="text-div">
+                        <h3 class="std-out-two"><i class="fas fa-user"></i> Update Your Profile</h3>
+                        <p>
+                            Update your profile image, location and use a catchy bio to make your account stand out
+                        </p>
+                    </div>
+                </div>
+                <div class="i-rows" data-aos="fade-up">
+                    <div class="fig-div">
+                        <span class="lg-fig">3</span>
+                    </div>
+                    <div class="text-div">
+                        <h3 class="std-out-two"><i class="fas fa-search"></i> Browse The Shops</h3>
+                        <p>
+                            Browse the shops to find awesome products to buy, favourite vendors to follow <i class="fas fa-plus"></i> and add products you hope to buy later to your <i class="fas fa-bookmark"></i> wishlist
+                        </p>
+                    </div>
+                </div>
+                <div class="i-rows" data-aos="fade-up">
+                    <div class="fig-div">
+                        <span class="lg-fig">4</span>
+                    </div>
+                    <div class="text-div">
+                        <h3 class="std-out-two"><i class="fas fa-shopping-cart"></i> Add Product To Cart</h3>
+                        <p>
+                            Add Products <i class="fas fa-shopping-bag"></i> you want to buy now to your Cart. And proceed to Cart to check them out.
+                        </p>
+                    </div>
+                </div>
+                <div class="i-rows" data-aos="fade-up">
+                    <div class="fig-div">
+                        <span class="lg-fig">5</span>
+                    </div>
+                    <div class="text-div">
+                        <h3 class="std-out-two"><i class="fas fa-phone fa-flip-horizontal"></i> Contact Seller</h3>
+                        <p>
+                            Contact sellers on their WhatsApp account <i class="fab fa-whatsapp"></i> to let them know what want you want to buy from them. Meet these awesome sellers on or off campus to complete purchase. 
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="gallery">
+            <div class="div-header">
+                <h2>Our <span class="std-out">Gallery</span></h2>
+                <h3 style="margin-top: .5rem;"><span class="std-out">Pictures</span> that make us <span class="std-out">blush <i class="fas fa-smile"></i></span></h3>
+            </div>
+            <div class="div-content">
+                <img :src="asset('assets/images/1.jpg')" alt="" srcset="" data-aos="fade-up">
+                <img :src="asset('assets/images/2.jpg')" alt="" srcset="" data-aos="fade-up">
+                <img :src="asset('assets/images/3.jpg')" alt="" srcset="" data-aos="fade-up">
+                <img :src="asset('assets/images/fuoye_360.jpg')" alt="" srcset="" data-aos="fade-up">
+                <img :src="asset('assets/images/1.png')" alt="" srcset="" data-aos="fade-up">
+                <img :src="asset('assets/images/2.png')" alt="" srcset="" data-aos="fade-up">
+                <img :src="asset('assets/images/3.png')" alt="" srcset="" data-aos="fade-up">
+                <img :src="asset('assets/images/4.png')" alt="" srcset="" data-aos="fade-up">
+                <img :src="asset('assets/images/5.png')" alt="" srcset="" data-aos="fade-up">
+                <img :src="asset('assets/images/6.png')" alt="" srcset="" data-aos="fade-up">
+                <img :src="asset('assets/images/7.png')" alt="" srcset="" data-aos="fade-up">
+                <img :src="asset('assets/images/8.png')" alt="" srcset="" data-aos="fade-up">
+            </div>
+        </div>
         <div class="wrapper">
             <h3 class="sb-text">
                 <i class="fas fa-user"></i> Our awesome Developer!
@@ -117,3 +207,137 @@ export default {
     }
 }
 </script>
+<style scoped>
+    .std-out{
+        color: #fff;
+        padding: .5rem;
+        border-radius: .5rem;
+        background: #ffa500;
+    }
+    .std-out-two{
+        background: #32cd32;
+        color: #fff;
+        padding: .5rem;
+        border-radius: .5rem;
+    }
+    .div-header{
+        white-space:normal;
+        line-height: 2rem;
+        text-align: center;
+    }
+    .main-txt{
+        margin-top: -.3rem;
+        /* background: #32cd32; */
+        /* height: calc(100vh - 53px); */
+        height: 75vh;
+        padding: 1rem;
+        /* background:#32cd32;  */
+        /* color: #fff; */
+        color: #32cd32;
+        position: relative;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+    .typewrite{
+        transition: all ease-in-out 3s;
+    }
+    .intro-div{
+        position: absolute;
+        top: 45%;
+        left: 0%;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #fff;
+        color: #32cd32;
+        border-radius: 1rem;
+        font-weight: bold;
+        padding: 1.5rem; 
+        margin: 0 auto;
+        width: 85%;
+        line-height: 2rem;
+        max-width: 425px;
+        display: none;
+    }
+    .how-it-works{
+        min-height: 50vh;
+        background: var(--white-color);
+        color: var(--dark-color);
+        text-align: center;
+        position: relative;
+    }
+    /* .how-it-works::after{
+        display: block;
+        content: '';
+        position: absolute;
+        z-index: -1;
+        width: inherit;
+        height: 200px;
+        background: url("asset('assets/images/how-it-works.svg')}}");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        left: 0;
+        right: 0;
+        bottom: -150px;
+    } */
+    .lg-fig{
+        font-size: 150px;
+        font-weight: bold;
+        font-family: 'Ubuntu', sans-serif;
+        /* color: rgba(255, 217, 0, 0.87); */
+        color: var(--brand-color);
+        color: var(--highlight-color);
+    }
+    .i-rows{
+        display: flex;
+        justify-content: stretch;
+        align-items: center;
+        min-height: 150px;
+        margin: 2rem 0;
+    }
+    .i-rows .fig-div{
+        height: inherit; 
+    }
+    .i-rows .text-div{
+        align-self: flex-start;
+    }
+    .gallery{
+        margin-top: 150px;
+        text-align: center;
+    }
+    .gallery .div-content{
+        padding: 1rem;
+        display: grid;
+        grid-template-columns: repeat(2,1fr);
+        grid-gap: .5rem;
+    }
+    .gallery .div-content img{
+        width: 100%;
+        height: auto;
+        border-radius: 1rem;
+        margin: .25rem;
+    }
+    @media screen and (min-width: 768px){
+        .how-it-works .div-content{
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            grid-gap: .5rem;
+        }
+        .gallery .div-content{
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+        }
+        .how-it-works::after{
+            display: none;
+            width: inherit;
+            min-height: 50vh;
+            bottom: -250px;
+        }
+        p{
+            white-space: normal;
+        }
+    }
+</style>

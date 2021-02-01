@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-import About from '../views/About.vue'
 import Shop from '../views/Shop.vue'
 import Broadcast from '../views/Broadcast.vue'
 import Login from '../views/Login.vue'
@@ -18,11 +17,6 @@ Vue.use(VueRouter)
 const routes = [{
         path: '*',
         component: NotFound
-    },
-    {
-        path: '/about',
-        name: 'about',
-        component: About
     },
     // {
     //     path: '/shop',
@@ -160,7 +154,7 @@ const routes = [{
     {
         path: '',
         name: 'home',
-        component: About,
+        component: Home,
     },
     {
         path: '/:username',
