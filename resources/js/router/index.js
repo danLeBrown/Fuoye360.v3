@@ -11,6 +11,7 @@ import Notification from '../views/Notification.vue'
 import Ad from '../views/Ad.vue'
 import Visit from '../views/Visit.vue'
 import Search from '../views/Search.vue'
+import Password from '../views/Password.vue'
 
 Vue.use(VueRouter)
 
@@ -140,9 +141,16 @@ const routes = [{
         }
     },
     {
-        path: '/password-reset',
-        name: 'password-reset',
-        component: Register
+        path: '/password/:page?/:token?',
+        name: 'password',
+        component: Password,
+        beforeEnter: (to, from, next) => {
+            axios.get('/api/authenticated').then((res) => {
+                return next('shop')
+            }).catch(() => {
+                return next()
+            });
+        }
     },
     {
         path: '/search',

@@ -1,7 +1,7 @@
 <template>
-  <div id="app" :class="{'auth-form-display': authForm}">
+  <div id="app" :class="['login', 'register', 'password'].includes($route.name)? 'auth-form-display': ''">
     <alert v-bind:alerts="errors"></alert>
-    <navbar-component v-bind:updateNav="$route.name" v-bind:guest="guest" v-bind:user="user" v-on:toggleProfile="toggleProfileState" v-on:logout="logout" v-on:newBroadcast="newBroadcast" v-bind:profileState="profileState" :notification_count="notification_count" v-on:searchQuery="updateSearchView" v-bind:revertSearch="revertSearch"></navbar-component>
+    <navbar-component v-bind:updateNav="$route.name" v-bind:guest="guest" v-bind:user="user" v-on:toggleProfile="toggleProfileState" v-on:logout="logout" v-on:newBroadcast="newBroadcast" v-bind:profileState="profileState" :notification_count="notification_count" v-on:searchQuery="updateSearchView" v-bind:revertSearch="revertSearch" v-if="!['login', 'register', 'password'].includes($route.name)"></navbar-component>
     <div class="container">
       <main class="main-wrapper">
         <div class="back-btn-div">
@@ -172,7 +172,7 @@ export default {
     },
     watch:{
       $route(to, from){
-        if(['login', 'register'].includes(this.$route.name)){
+        if(['login', 'register', 'password'].includes(this.$route.name)){
           this.authForm = true;
         }else{
           this.authForm = false;

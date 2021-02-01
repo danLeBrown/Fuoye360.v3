@@ -43,7 +43,6 @@ Route::middleware('auth:sanctum')->get('/authenticated', function () {
 });
 
 Auth::routes();
-// Route::post('/dashboard/edit-profile', 'DashboardController@edit');
 Route::get('/shop/wishlist', 'ShopController@wishlist');
 Route::get('/shop/trending', 'ShopController@getTrending');
 Route::get('/shop/inventory', 'ShopController@inventory');

@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -69,8 +71,6 @@ Route::get('storage/broadcast_images/{filename}', function ($filename) {
 });
 
 Route::get('/mad', 'MadController@index');
-
-
 Route::get('/{vue_capture}', function () {
     return view('vue.index');
 })->where('vue_capture', '[\/\w\.-]*');

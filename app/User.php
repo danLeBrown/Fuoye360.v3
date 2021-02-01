@@ -2,10 +2,11 @@
 
 namespace App;
 
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
+use App\Notifications\MailResetPasswordToken;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
@@ -43,4 +44,11 @@ class User extends Authenticatable
         # code...
         return $this->hasMany('App\Product');
     }
+    /**
+     * Send a password reset email to the user
+     */
+    // public function sendPasswordResetNotification($token)
+    // {
+    //     $this->notify(new MailResetPasswordToken($token));
+    // }
 }

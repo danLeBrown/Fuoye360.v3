@@ -34,7 +34,7 @@
                 <button type="submit" name="login-btn">Login</button>
                 <div>
                     <p><router-link :to="{name: 'register'}" href="">Don't have an account yet?</router-link></p>
-                    <p><router-link :to="{name: 'password-reset'}">Forgot your password?</router-link></p>
+                    <p><router-link :to="{name: 'password', params:{page: 'email'}}">Forgot your password?</router-link></p>
                 </div>
             </form>
         </div>
@@ -163,7 +163,7 @@ export default {
                     this.$router.push({name: 'shop'});
                     this.$emit('authentication', true);
                 }).catch((err)=>{
-                    $("button[type=submit]").css('opacity', '.75').attr('disabled', false).html('LOGIN');
+                    $("button[type=submit]").css('opacity', '1').attr('disabled', false).html('LOGIN');
                     this.$emit('alertNotification', err.response.data.errors);
                 });
             });
