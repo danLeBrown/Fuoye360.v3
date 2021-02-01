@@ -89,6 +89,22 @@
                 <img loading="lazy" :src="asset('assets/images/8.png')" alt="" srcset="" data-aos="fade-up">
             </div>
         </div> -->
+        <div class="wrapper">
+            <h3 class="sb-text">
+                <i class="fas fa-user"></i> Our awesome Developer!
+            </h3><br>
+            <div class="about-inspiration">
+                <div class="about-avi">
+                    <img loading="lazy" :src="asset('assets/images/about.jpg')" alt="about-image" style="margin: 0 auto;"/> 
+                </div>
+                <div>
+                    <div class="goals">
+                    <span class="content">Words That Inspire Me:</span><br>"Think Differently. <br>Innovate Differently. <br> Provide Solutions rather than discuss problems. <br> And while you do these things, remember than your greatest strength lies in doing things in your own uniqueness. <br>THESE ARE THE WORDS I LIVE AND BREATHE BY"
+                    </div>
+                    <p>Ayomide Daniel is a 400 Level Mechanical Engineering student of FUOYE. FUOYE360 is his first website to be launched.</p>
+                </div>
+            </div>
+        </div>
         <div class="form-container lg-container" style="background:none;">
             <div style="padding:1rem;" class="form-img-div">
                 <img loading="lazy" :src="asset('assets/illustrations/messenger-animate.svg')" alt="">
@@ -115,22 +131,6 @@
                 </div>
                 <button type="submit" name="signup-btn" class="send-feeback-btn" :disabled="feedback.name.length <= 0 || feedback.email.length <= 0 || feedback.message.length <= 0|| !valid_email" :style="feedback.name.length <= 0 || feedback.email.length <= 0 || feedback.message.length <= 0 || !valid_email? 'opacity:.75;': ''"><i class="fas fa-paper-plane"></i> SEND FEEDBACK</button>
             </form>
-        </div>
-        <div class="wrapper">
-            <h3 class="sb-text">
-                <i class="fas fa-user"></i> Our awesome Developer!
-            </h3><br>
-            <div class="about-inspiration">
-                <div class="about-avi">
-                    <img loading="lazy" :src="asset('assets/images/about.jpg')" alt="about-image" style="margin: 0 auto;"/> 
-                </div>
-                <div>
-                    <div class="goals">
-                    <span class="content">Words That Inspire Me:</span><br>"Think Differently. <br>Innovate Differently. <br> Provide Solutions rather than discuss problems. <br> And while you do these things, remember than your greatest strength lies in doing things in your own uniqueness. <br>THESE ARE THE WORDS I LIVE AND BREATHE BY"
-                    </div>
-                    <p>Ayomide Daniel is a 400 Level Mechanical Engineering student of FUOYE. FUOYE360 is his first website to be launched.</p>
-                </div>
-            </div>
         </div>
   </div>
 </template>
@@ -252,10 +252,13 @@ export default {
             } 
         },
         async sendFeedback(e){
-            await $(e.target).closest("button[type=submit]").html('<span class="loading-circle "></span>');
+            await $("button[type=submit]").html('<span class="loading-circle "></span>');
             await axios.post('/api/action/feedback', this.feedback)
             .then(res=>{
-                $(e.target).closest(" button[type=submit]").html('<i class="fas fa-paper-plane"></i> SEND FEEDBACK');
+              this.feedback.name = '';
+              this.feedback.email = '';
+              this.feedback.message = '';
+                $("button[type=submit]").html('<i class="fas fa-paper-plane"></i> SEND FEEDBACK');
             })
             .catch(err=>console.log(err));
         }
@@ -282,12 +285,8 @@ export default {
     }
     .main-txt{
         margin-top: -.3rem;
-        /* background: #32cd32; */
-        /* height: calc(100vh - 53px); */
         height: 75vh;
         padding: 1rem;
-        /* background:#32cd32;  */
-        /* color: #fff; */
         color: #32cd32;
         position: relative;
         background-size: cover;

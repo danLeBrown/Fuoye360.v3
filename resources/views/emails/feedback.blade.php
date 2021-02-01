@@ -1,3 +1,5 @@
 @component('mail::message')
-{{$feedback['message']}}
+<p>
+    {{$feedback['message']}}
+</p>
 @endcomponent

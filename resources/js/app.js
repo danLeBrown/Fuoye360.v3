@@ -8,9 +8,9 @@ require('./bootstrap');
 import InfiniteLoading from 'vue-infinite-loading';
 
 window.Vue = require('vue');
-Vue.config.devtools = false
-Vue.config.debug = false
-Vue.config.silent = true
+// Vue.config.devtools = false
+// Vue.config.debug = false
+// Vue.config.silent = true
 Vue.mixin(require('./blade'));
 Vue.use(InfiniteLoading, { /* options */ });
 import router from './router';
