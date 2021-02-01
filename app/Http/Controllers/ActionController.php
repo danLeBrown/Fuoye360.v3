@@ -586,7 +586,7 @@ class ActionController extends Controller
         $data = [
             'message'=> 'Thank you for taking your time to make us serve you better.'
         ];
-        Mail::to('fuoye360@gmail.com')->send(new SendFeedbackMail($feedback));
+        Mail::to('support@fuoye360.com')->send(new SendFeedbackMail($feedback));
         return response(new ShopResource($data));
     }
 }

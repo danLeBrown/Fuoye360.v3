@@ -255,10 +255,8 @@ export default {
             await $("button[type=submit]").html('<span class="loading-circle "></span>');
             await axios.post('/api/action/feedback', this.feedback)
             .then(res=>{
-              this.feedback.name = '';
-              this.feedback.email = '';
-              this.feedback.message = '';
-                $("button[type=submit]").html('<i class="fas fa-paper-plane"></i> SEND FEEDBACK');
+              $(e.target)[0].reset();
+              $("button[type=submit]").html('<i class="fas fa-paper-plane"></i> SEND FEEDBACK');
             })
             .catch(err=>console.log(err));
         }
