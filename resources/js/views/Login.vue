@@ -33,7 +33,7 @@
                 </div>
                 <button type="submit" name="login-btn">Login</button>
                 <div>
-                    <p><router-link :to="{name: 'register'}" href="">Don't have an account yet?</router-link></p>
+                    <p><router-link :to="{name: 'register', query:{redirect: $route.query.redirect}}" href="">Don't have an account yet?</router-link></p>
                     <p><router-link :to="{name: 'password', params:{page: 'email'}}">Forgot your password?</router-link></p>
                 </div>
             </form>
@@ -160,7 +160,11 @@ export default {
             $("button[type=submit]").css('opacity', '.75').attr('disabled', true).html('<span class="loading-circle "></span> LOGGING IN...');
             axios.get('/sanctum/csrf-cookie').then(response => {
                 axios.post('/api/login', this.form).then(()=>{
-                    this.$router.push({name: 'shop'});
+                    if (this.$route.query.redirect != undefined) {
+                        this.$router.push({name: this.$route.query.redirect});
+                    }else{                            
+                        this.$router.push({name: 'shop'});
+                    }
                     this.$emit('authentication', true);
                 }).catch((err)=>{
                     $("button[type=submit]").css('opacity', '1').attr('disabled', false).html('LOGIN');

@@ -3,39 +3,25 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Resources\ShopResource;
+use App\Http\Resources\DataResource;
 use Illuminate\Support\Facades\DB;
-use Auth;
 use App\User;
 use App\Product;
 use App\Wishlist;
-use App\Cart;
-use App\Views;
 use App\Notification;
 use App\FollowingTable;
-use Session;
-use App\Subscription;
 use App\ProductsView;
-use App\ProductsImpression;
 use App\ProductsLifetime;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
+use App\Traits\ResourceTrait;
 
-
-class ShopController extends Controller
+class ProductController extends Controller
 {
+    use ResourceTrait;
     public function __construct()
     {
         $this->middleware('auth:sanctum');
     }
 
-    public function paginate($items, $perPage = 15, $page = null, $options = [])
-    {
-        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
-        $items = $items instanceof Collection ? $items : Collection::make($items);
-        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
-    }
     /**
      * Display a listing of the resource.
      *
@@ -44,22 +30,18 @@ class ShopController extends Controller
     public function index(Request $request)
     {
         $user_id = auth('sanctum')->user()->id;
-        $get_products = [];
+        $products = [];
         $followings = FollowingTable::where(['sender_id' => $user_id])->get();
         foreach ($followings as $key => $following) {
             $following_products = Product::where('user_id', $following->receiver_id)->get();
             $user = User::select('name', 'image')->where('id', $following->receiver_id)->first();
             foreach ($following_products as $key => $product) {
-                $product->user = $user;
-                $product->price = number_format($product->price, 0, '.', ',');
-                $product->in_wishlist = count(Wishlist::where(['user_id' => $user_id, 'product_id'=> $product->id])->get()) > 0 ? true: false;
-                $get_products[$product->id] = $product;
+                $product->createProductData($product);
+                $products[$product->id] = $product;
             }   
         }
-        krsort($get_products);
-
-        $products = $this->paginate($get_products);
-        return  ShopResource::collection($products);
+        krsort($products);
+        return $this->createResource($products);
     }
 
     public function getTrending()
@@ -88,98 +70,41 @@ class ShopController extends Controller
         }
         krsort($newTrendings); 
 
-        return new ShopResource($newTrendings);
+        return new DataResource($newTrendings);
     }
     public function wishlist()
     {
         $user_id = auth('sanctum')->user()->id;
-        $get_products = [];
+        $products = [];
         $wishlists = Wishlist::where('user_id' , $user_id)->get();
         foreach ($wishlists as $key => $wishlist) {
             $product = Product::find($wishlist->product_id);
-            $user = User::select('name', 'image')->where('id', $product->user_id)->first();
-            $product->user = $user;
-            $product->price = number_format($product->price, 0, '.', ',');
-            $product->in_wishlist = count(Wishlist::where(['user_id' => $user_id, 'product_id'=> $product->id])->get()) > 0 ? true: false;
-            
-            $get_products[$wishlist->id] = $product;
-            // array_push($get_products , $product);
+            $product->createProductData($product);
+            $products[$wishlist->id] = $product;
         }
-        \krsort($get_products);
+        \krsort($products);
 
-        $products = $this->paginate($get_products);
-        return ShopResource::collection($products);
+        return $this->createResource($products);
     }
 
     public function buy()
     {
-        $user_id = auth('sanctum')->user()->id;
-        $products = Product::orderBy('id', 'desc')->paginate(15);
+        $products = Product::orderBy('id', 'desc')->get();
         foreach ($products as $key => $product) {
-            $user = User::select('name', 'image')->where('id', $product->user_id)->first();
-            $product->user = $user;
-            $product->price = number_format($product->price, 0, '.', ',');
-            $product->in_wishlist = count(Wishlist::where(['user_id' => $user_id, 'product_id'=> $product->id])->get()) > 0 ? true: false;            
+            $product->createProductData($product);
         }
-        return ShopResource::collection($products);
-
+        return $this->createResource($products);
     }
 
     public function inventory(){
         $user_id = auth('sanctum')->user()->id;
         $user = User::select('name', 'image')->where('id', $user_id)->first();
-
-        $products = Product::where('user_id', $user_id)->orderBy('id', 'DESC')->paginate(15);
+        $products = Product::where('user_id', $user_id)->orderBy('id', 'DESC')->get();
         foreach ($products as $key => $product) {
             $product->user = $user;
             $product->price = number_format($product->price, 0, '.', ',');
         }
-        $data = array(
-            'status' => 200,
-            'products' => $products,
-        );
-        // return new ShopResource($data);
-        return ShopResource::collection($products);
-    }
-
-    public function cart()
-    {
-        $user_id = auth('sanctum')->user()->id;
-        $check_if_cart_exists = Session::has('shoppingCart')? true : false; 
-        $status = 500;
-        $session_cart = [];
-        if($check_if_cart_exists){
-            $status = 200;
-            $oldCart = Session::has('shoppingCart') ? Session::get('shoppingCart') : null;
-            $session_cart = new Cart($oldCart);
-            $session_cart->filterCart();
-            if (is_numeric($session_cart->totalPrice)) {
-                $session_cart->totalPrice = number_format($session_cart->totalPrice, 0, '.', ',');
-            }
-
-            $shopping_cart = $session_cart->filter;
-            foreach ($shopping_cart as $key => $cart) {
-                $items = $cart['products'];
-                foreach ($items as $key => $item) {
-                    if (is_numeric($item['item']->price)) {
-                        $item['item']->price = number_format($item['item']->price, 0, '.', ',');
-                    }
-                    $item['item']->in_wishlist = count(Wishlist::where(['user_id' => $user_id, 'product_id'=> $item['item']->id])->get()) > 0 ? true: false;
-                }
-
-            }
-
-            $data = array(
-                'shopping_cart' => $session_cart,
-                'status' => $status
-            );
-        }else{
-            $data = array(
-                'shopping_cart' => $session_cart,
-                'status' => $status
-            );
-        }
-        return new ShopResource($data);
+        return $this->createResource($products);
     }
 
     public function category($category)
@@ -189,27 +114,14 @@ class ShopController extends Controller
         if (in_array($category, $productArray)) {
             $status = 200;
             $user_id = auth('sanctum')->user()->id;
-            $products = Product::where('category', $category)->orderBy('id', 'desc')->paginate(15);
+            $products = Product::where('category', $category)->orderBy('id', 'desc')->get();
             foreach ($products as $key => $product) {
-                $user = User::select('name', 'image')->where('id', $product->user_id)->first();
-                $product->user = $user;
-                $product->price = number_format($product->price, 0, '.', ',');
-                $product->in_wishlist = count(Wishlist::where(['user_id' => $user_id, 'product_id'=> $product->id])->get()) > 0 ? true: false;
-                
+                $product->createProductData($product);                
             }
         }else{
-            $status = 500;
             $products = [];
         }
-
-        $data = array(
-            'status' => $status,
-            'products' => $products
-        );
-
-        // return  new ShopResource($data);
-        return ShopResource::collection($products);
-
+        return $this->createResource($products);
     }
 
     /**
@@ -290,7 +202,7 @@ class ShopController extends Controller
             'product' => $product,
             'products_lifetime' => $add_to_productslifetime
         ];
-        return new ShopResource($data);
+        return new DataResource($data);
     }
 
     /**
@@ -302,16 +214,11 @@ class ShopController extends Controller
     public function show($id)
     {
         $user_id = auth('sanctum')->user()->id;
-        $products = Product::where('user_id', $id)->orderBy('id', 'desc')->paginate(15);
+        $products = Product::where('user_id', $id)->orderBy('id', 'desc')->get();
         foreach ($products as $key => $product) {
-            $user = User::select('name', 'image')->where('id', $product->user_id)->first();
-            $product->user = $user;
-            $product->price = number_format($product->price, 0, '.', ',');
-            $product->in_wishlist = count(Wishlist::where(['user_id' => $user_id, 'product_id'=> $product->id])->get()) > 0 ? true: false;
+            $product->createProductData($product);
         }
-
-        return ShopResource::collection($products);
-
+        return $this->createResource($products);
     }
 
     /**

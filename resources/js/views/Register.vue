@@ -43,7 +43,7 @@
                 <button type="submit" name="signup-btn" style="margin-top:.25rem;" @click.prevent="register">Signup</button>
                 <div>
                     <p>By signing up, you agree to our <a href="/terms" target="_blank">terms and conditons</a></p>
-                    <router-link :to="{name: 'login'}">Already have an account?</router-link>
+                    <router-link :to="{name: 'login', query:{redirect: $route.query.redirect}}">Already have an account?</router-link>
                 </div>
             </form>
         </div>

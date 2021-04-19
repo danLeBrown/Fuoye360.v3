@@ -18,18 +18,6 @@ const routes = [{
         path: '*',
         component: NotFound
     },
-    // {
-    //     path: '/shop',
-    //     name: 'shop',
-    //     component: Shop,
-    //     beforeEnter: (to, from, next) => {
-    //         axios.get('/api/authenticated').then(() => {
-    //             next()
-    //         }).catch(() => {
-    //             return next('login')
-    //         })
-    //     }
-    // },
     {
         path: '/shop/:page?',
         name: 'shop',
@@ -39,22 +27,10 @@ const routes = [{
             axios.get('/api/authenticated').then(() => {
                 next()
             }).catch(() => {
-                return next('login')
+                return next({ name: 'login', query: { redirect: 'shop' } })
             })
         }
     },
-    // {
-    //     path: '/broadcast',
-    //     name: 'broadcast',
-    //     component: Broadcast,
-    //     beforeEnter: (to, from, next) => {
-    //         axios.get('/api/authenticated').then(() => {
-    //             next()
-    //         }).catch(() => {
-    //             return next('login')
-    //         })
-    //     }
-    // },
     {
         path: '/broadcast/:page?/:status?',
         name: 'broadcast',
@@ -64,7 +40,7 @@ const routes = [{
             axios.get('/api/authenticated').then(() => {
                 next()
             }).catch(() => {
-                return next('login')
+                return next({ name: 'login', query: { redirect: 'broadcast' } })
             })
         }
     },
@@ -149,7 +125,14 @@ const routes = [{
     {
         path: '/search',
         name: 'search',
-        component: Search
+        component: Search,
+        beforeEnter: (to, from, next) => {
+            axios.get('/api/authenticated').then(() => {
+                next()
+            }).catch(() => {
+                return next({ name: 'login', query: { redirect: 'search' } })
+            })
+        }
     },
     {
         path: '',

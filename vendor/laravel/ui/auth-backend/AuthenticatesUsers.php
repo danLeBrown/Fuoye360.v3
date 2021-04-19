@@ -115,10 +115,13 @@ trait AuthenticatesUsers
             return $response;
         }
 
-        $user = User::find($this->guard()->user()->id);
-        $api_token = $user->createToken('fuoye360_web')->plainTextToken;
+        // $user = User::find($this->guard()->user()->id);
+        // $api_token = $user->createToken('fuoye360_web')->plainTextToken;
+        // return $request->wantsJson()
+        //     ? new JsonResponse(["token" => $api_token], 200)
+        //     : redirect()->intended($this->redirectPath());
         return $request->wantsJson()
-            ? new JsonResponse(["token" => $api_token], 200)
+            ? new JsonResponse(['token'=>'somesh'])
             : redirect()->intended($this->redirectPath());
     }
 

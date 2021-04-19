@@ -43,14 +43,14 @@ Route::middleware('auth:sanctum')->get('/authenticated', function () {
 });
 
 Auth::routes();
-Route::get('/shop/wishlist', 'ShopController@wishlist');
-Route::get('/shop/trending', 'ShopController@getTrending');
-Route::get('/shop/inventory', 'ShopController@inventory');
-Route::get('/shop/buy', 'ShopController@buy');
-Route::get('/shop/cart', 'ShopController@cart');
-Route::get('/shop/buy/{category}', 'ShopController@category');
+Route::get('/shop/wishlist', 'ProductController@wishlist');
+Route::get('/shop/trending', 'ProductController@getTrending');
+Route::get('/shop/inventory', 'ProductController@inventory');
+Route::get('/shop/buy', 'ProductController@buy');
+Route::get('/shop/cart', 'ProductController@cart');
+Route::get('/shop/buy/{category}', 'ProductController@category');
 
-Route::resource('shop', 'ShopController');
+Route::resource('shop', 'ProductController');
 
 Route::get('/broadcast/bookmarks', 'BroadcastController@bookmarks');
 Route::get('/broadcast/trending', 'BroadcastController@trending');
@@ -103,6 +103,9 @@ Route::post('action/{seller_id}/remove-seller-from-cart', 'ActionController@remo
 Route::post('action/{seller_id}/contact-seller', 'ActionController@contactSeller');
 Route::post('action/{product_id}/remove-product-from-cart/{seller_id}', 'ActionController@removeProductFromCart');
 Route::post( 'action/{product_id}/product-impression/{type}', 'ActionController@productImpressions');
-Route::get('search/{query}/users', 'ActionController@searchUsers');
-Route::get('search/{query}/shop', 'ActionController@searchProducts');
-Route::get('search/{query}/broadcast', 'ActionController@searchBroadcasts');
+// Route::get('search/{query}/users', 'ActionController@searchUsers');
+// Route::get('search/{query}/shop', 'ActionController@searchProducts');
+// Route::get('search/{query}/broadcast', 'ActionController@searchBroadcasts');
+
+Route::get('search/users/{name}', 'SearchController@findUser');
+Route::get('search', 'SearchController@search');

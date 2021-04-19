@@ -141,13 +141,9 @@ export default {
     watch:{
         tweet: function (data) {
             this.comment.blogger_id = data.user_id;
-            if(data.type == 'comment'){
-                this.comment.post_id = data.post_id
-            }else{
-                if(data.post_id == null && data.user_id == this.user.id){
-                    this.$emit('createdThread', true);
-                }
-                this.comment.post_id = data.id;
+            this.comment.post_id = data.id
+            if(data.post_id == null && data.user_id == this.user.id){
+                this.$emit('createdThread', true);
             }
         }
     },

@@ -214,7 +214,7 @@ class ActionController extends Controller
 
             $data = array(
                 'status' => $status,
-                'views' => $views.' views'
+                'views' => $views
             );
             return new ShopResource($data);
 

@@ -5,122 +5,21 @@ namespace App\Http\Controllers;
 use App\User;
 use App\Notification;
 use App\FollowingTable;
+use App\Traits\TimeagoTrait;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
+use App\Traits\ResourceTrait;
+use App\Events\NewNotification;
+use App\Http\Resources\DataResource;
 use App\Http\Resources\ShopResource;
-use Illuminate\Pagination\Paginator;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Pagination\LengthAwarePaginator;
-use App\Events\NewNotification;
 
 class AccountController extends Controller
 {
+    use ResourceTrait, TimeagoTrait;
     public function __construct()
     {
         $this->middleware('auth:sanctum');
-    }
-    public function updateTime($timestamp)
-    {
-        $time_ago = strtotime($timestamp);
-        $current_time    = time();
-        $time_difference = $current_time - $time_ago;
-        $seconds         = $time_difference;
-
-        $minutes = round($seconds / 60); // value 60 is seconds
-        $hours   = round($seconds / 3600); //value 3600 is 60 minutes * 60 sec
-        $days    = round($seconds / 86400); //86400 = 24 * 60 * 60;
-        $weeks   = round($seconds / 604800); // 7*24*60*60;
-        $months  = round($seconds / 2629440); //((365+365+365+365+366)/5/12)*24*60*60
-        $years   = round($seconds / 31553280); //(365+365+365+365+366)/5 * 24 * 60 * 60
-
-        if ($seconds <= 60){
-
-        return "1s";
-
-        } else if ($minutes <= 60){
-
-            if ($minutes == 1){
-
-                return "1m";
-
-            } else {
-
-                return $minutes."m";
-
-            }
-
-        } else if ($hours <= 24){
-
-            if ($hours == 1){
-
-                return "1hr";
-
-            } else {
-
-                return $hours."hrs";
-
-            }
-
-        } else if ($days <= 7){
-
-            if ($days == 1){
-
-                return "1d";
-
-            } else {
-
-                return $days."d";
-
-            }
-
-        }
-        //  else if ($weeks <= 4.3){
-
-        //     if ($weeks == 1){
-
-        //         return "a week ago";
-
-        //     } else {
-
-        //         return "$weeks weeks ago";
-
-        //     }
-
-        // } else if ($months <= 12){
-
-        //     if ($months == 1){
-
-        //         return "a month ago";
-
-        //     } else {
-
-        //         return "$months months ago";
-
-        //     }
-
-        // } else {
-
-        //     if ($years == 1){
-
-        //         return "1 year ago";
-
-        //     } else {
-
-        //         return "$years years ago";
-
-        //     }
-        else{
-            // return getdate($time_ago);
-            return getdate($time_ago)['mday']." ".substr(getdate($time_ago)['month'], 0, 3)." '".substr(getdate($time_ago)['year'], 2, 4);
-        }
-    }
-
-    public function paginate($items, $perPage = 15, $page = null, $options = [])
-    {
-        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
-        $items = $items instanceof Collection ? $items : Collection::make($items);
-        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
     /**
      * Display a listing of the resource.
@@ -129,15 +28,8 @@ class AccountController extends Controller
      */
     public function index($name)
     {
-        $user_id = auth('sanctum')->user()->id;
-        $visited = User::select('id','image', 'name', 'bio', 'geo_location')->where('name', $name)->first();
-        $visited->following = count(FollowingTable::where('sender_id', $visited->id)->get());
-        $visited->followers = count(FollowingTable::where('receiver_id', $visited->id)->get());
-        if ($user_id != $visited->id) {
-            $visited->is_following = count(FollowingTable::where(['receiver_id'=> $visited->id, 'sender_id' => $user_id])->get()) > 0 ? true : false;
-        }
-        $data = ['visited' => $visited];
-        return new ShopResource($data);
+        $visited = User::getUserDataFromName($name);
+        return new DataResource($visited);
     }
 
     public function follow($id)
@@ -204,7 +96,7 @@ class AccountController extends Controller
     public function isFollowing($id)
     {
         $user_id = auth('sanctum')->user()->id;
-        $accounts = FollowingTable::where('sender_id', $id)->orderBy('created_at', 'desc')->paginate(15);
+        $accounts = FollowingTable::where('sender_id', $id)->orderBy('created_at', 'desc')->get();
         foreach ($accounts as $key => $account) {
             $following = User::find($account->receiver_id);
             $account->name = $following->name;
@@ -215,13 +107,13 @@ class AccountController extends Controller
                 $account->is_following = count(FollowingTable::where(['receiver_id'=> $account->receiver_id, 'sender_id' => $user_id])->get()) > 0 ? true : false;
             }
         }
-        return ShopResource::collection($accounts);
+        return $this->createResource($accounts);
     }
 
     public function hasFollower($id)
     {
         $user_id = auth('sanctum')->user()->id;
-        $accounts = FollowingTable::where('receiver_id', $id)->orderBy('created_at', 'desc')->paginate(15);
+        $accounts = FollowingTable::where('receiver_id', $id)->orderBy('created_at', 'desc')->get();
         foreach ($accounts as $key => $account) {
             $following = User::find($account->sender_id);
             $account->name = $following->name;
@@ -232,20 +124,21 @@ class AccountController extends Controller
                 $account->is_following = count(FollowingTable::where(['receiver_id'=> $account->sender_id, 'sender_id' => $user_id])->get()) > 0 ? true : false;
             }
         }
-        return ShopResource::collection($accounts);
+        return $this->createResource($accounts);
     }
     
     public function notifications()
     {
         $user_id = auth('sanctum')->user()->id;
-        $notifications = Notification::where('receiver_id', $user_id)->orderBy('created_at', 'desc')->paginate(15);
+        $notifications = Notification::where('receiver_id', $user_id)->orderBy('created_at', 'desc')->get();
 
         foreach ($notifications as $key => $notification) {
             $user = User::select('name', 'image')->where('id', $notification->sender_id)->first();
             $notification->sender = $user;
-            $notification->relative_at = $this->updateTime($notification->created_at);
+            $notification->data = json_decode($notification->data, true);
+            $notification->relative_at = $this->timeago($notification->created_at);
         }
-        return ShopResource::collection($notifications);
+        return $this->createResource($notifications);
     }
 
     public function deleteNotification($id)
